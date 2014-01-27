@@ -80,7 +80,7 @@ class DotRenderer:
 
         pygame.draw.circle(window,
                            configuration.AGENT_COLOR,
-                           (x, y),
+                           (int(x), int(y)),
                            configuration.AGENT_RADIUS)
 
     def _render_location(self, window, location, render_text):
