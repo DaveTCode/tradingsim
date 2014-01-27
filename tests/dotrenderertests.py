@@ -31,5 +31,11 @@ class DotRendererTests(unittest.TestCase):
         self.assertEqual(renderer._agent_to_window_coords(0, 0), (-19, -1))
         self.assertEqual(renderer._agent_to_window_coords(10, 10), (1, 19))
 
+    def test_window_to_agent_coords_no_change(self):
+        renderer = DotRenderer()
+        self.assertEqual(renderer._window_to_agent_coords(0, 0), (0, 0))
+        self.assertEqual(renderer._window_to_agent_coords(10, 10), (10, 10))
+        self.assertEqual(renderer._window_to_agent_coords(0, 21), (0, 21))
+
 if __name__ == '__main__':
     unittest.main()

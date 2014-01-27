@@ -9,7 +9,8 @@ class DotRenderer:
         self.top_left_y = 0
         self.scale = 1
         self.keys = {v: (k, False) for (k, v) in configuration.RENDERER_KEY_CONFIG.iteritems()}
-        print(self.keys)
+        self.location_highlighted = None
+        self.font = pygame.font.Font(None, 12)
 
     def move_camera(self, dx, dy):
         self.top_left_x += dx
@@ -21,11 +22,16 @@ class DotRenderer:
     def render(self, window, simulation):
         self._update_viewport()
 
+        (mouse_x, mouse_y) = pygame.mouse.get_pos()
+
         for agent in simulation.agents:
             self._render_agent(window, agent)
 
         for location in simulation.locations:
-            self._render_location(window, location)
+            render_location_text = (abs(location.x - mouse_x) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT and
+                                    abs(location.y - mouse_y) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT)
+
+            self._render_location(window, location, render_location_text)
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and event.key in self.keys.keys():
@@ -61,8 +67,10 @@ class DotRenderer:
         self.zoom_camera(dz)
 
     def _agent_to_window_coords(self, x, y):
-        return ((x * self.scale) - self.top_left_x,
-                (y * self.scale) - self.top_left_y)
+        return ((x * self.scale) - self.top_left_x, (y * self.scale) - self.top_left_y)
+
+    def _window_to_agent_coords(self, x, y):
+        return ((x + self.top_left_x) / self.scale, (y + self.top_left_y) / self.scale)
 
     def _render_agent(self, window, agent):
         (x, y) = self._agent_to_window_coords(agent.x, agent.y)
@@ -72,7 +80,7 @@ class DotRenderer:
                            (x, y),
                            configuration.AGENT_RADIUS)
 
-    def _render_location(self, window, location):
+    def _render_location(self, window, location, render_text):
         (x, y) = self._agent_to_window_coords(location.x, location.y)
 
         pygame.draw.rect(window,
@@ -81,3 +89,10 @@ class DotRenderer:
                           y,
                           configuration.LOCATION_WIDTH,
                           configuration.LOCATION_WIDTH))
+
+        if render_text:
+            text = ""
+            for good, amount in location.goods_quantity.iteritems():
+                text += str(good) + "=" + str(amount) + ", "
+            text_rendered = self.font.render(text[:-2], 1, (255, 255, 255))
+            window.blit(text_rendered, (location.x, location.y))

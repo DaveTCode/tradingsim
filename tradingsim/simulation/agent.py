@@ -15,3 +15,12 @@ class Agent:
 
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)
+
+
+class AgentAI:
+
+    def __init__(self, agent):
+        self.agent = agent
+
+    def act(self, simulation):
+        pass

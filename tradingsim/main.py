@@ -1,11 +1,8 @@
 import pygame
-import random
 import sys
 import configuration as configuration
-from simulation.agent import Agent
-from simulation.location import Location
-from simulation.simulation import Simulation
 from renderers.dotrenderer import DotRenderer
+import manualdata
 
 
 class Game:
@@ -17,10 +14,6 @@ class Game:
         self.renderer = renderer
         self.paused = False
 
-        self._init_pygame()
-
-    def _init_pygame(self):
-        pygame.init()
         pygame.display.set_caption(configuration.WINDOW_TITLE)
         self.window = pygame.display.set_mode((self.width, self.height))
         self.main_loop_clock = pygame.time.Clock()
@@ -56,24 +49,15 @@ class Game:
                 self.renderer.handle_event(event)
                 self._handle_event(event)
 
-
-def generate_random_locations(simulation):
-    for ii in range(0, random.randint(10, 20)):
-        x = random.randint(0, simulation.width)
-        y = random.randint(0, simulation.height)
-
-        simulation.locations.append(Location(str(ii), x, y))
-
 if __name__ == "__main__":
-    simulation = Simulation(configuration.SIMULATION_STEP_MS,
-                            configuration.SIMULATION_WIDTH,
-                            configuration.SIMULATION_HEIGHT)
+    pygame.init()
+    pygame.font.init()
+
+    simulation = manualdata.create_simulation()
     renderer = DotRenderer()
     game = Game(configuration.WIDTH,
                 configuration.HEIGHT,
                 simulation,
                 renderer)
-
-    generate_random_locations(simulation)
 
     game.run()
