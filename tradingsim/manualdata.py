@@ -1,9 +1,10 @@
 import random
 
 import configuration
-from simulation.simulation import Simulation
+from simulation.agent import Agent
 from simulation.goods import Goods
 from simulation.location import Location
+from simulation.simulation import Simulation
 
 
 def create_simulation():
@@ -36,6 +37,15 @@ def create_simulation():
                 location.goods_consumption_rate[goods] = random.randint(0, 10) / 10.0
 
             simulation.locations.append(location)
+
+    def create_agents(simulation):
+        for ii in range(0, random.randint(10, 20)):
+            x = random.randint(0, simulation.width)
+            y = random.randint(0, simulation.height)
+
+            agent = Agent(str(ii), x, y)
+
+            simulation.agents.append(agent)
 
     simulation = Simulation(configuration.SIMULATION_WIDTH,
                             configuration.SIMULATION_HEIGHT,

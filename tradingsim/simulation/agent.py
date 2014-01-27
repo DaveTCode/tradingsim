@@ -3,8 +3,8 @@ class Agent:
     def __init__(self, name, x, y):
         self.x = x
         self.y = y
-        self.vel = (0, 0)  # units per ms
-        self.acc = (0, 0)  # units per ms
+        self.vel = (0, 0)  # simulation distance units by simulation time
+        self.acc = (0, 0)  # simulation distance units by simulation time
         self.name = name
 
     def step(self, dt):

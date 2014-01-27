@@ -35,9 +35,7 @@ class Game:
 
     def _handle_event(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            self.paused = True
-        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-            self.paused = False
+            self.paused = not self.paused
 
     def handle_input(self):
         for event in pygame.event.get():
