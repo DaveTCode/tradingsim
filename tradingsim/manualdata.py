@@ -54,4 +54,6 @@ def create_simulation():
 
     create_locations(simulation)
 
+    create_agents(simulation)
+
     return simulation
