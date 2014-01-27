@@ -10,7 +10,8 @@ class DotRenderer:
         self.scale = 1
         self.keys = {v: (k, False) for (k, v) in configuration.RENDERER_KEY_CONFIG.iteritems()}
         self.location_highlighted = None
-        self.font = pygame.font.Font(None, 12)
+        self.details_font = pygame.font.Font(None, 12)
+        self.overlay_font = pygame.font.Font(None, 24)
 
     def move_camera(self, dx, dy):
         self.top_left_x += dx
@@ -32,6 +33,8 @@ class DotRenderer:
                                     abs(location.y - mouse_y) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT)
 
             self._render_location(window, location, render_location_text)
+
+        self._render_overlay(window, simulation)
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and event.key in self.keys.keys():
@@ -94,5 +97,9 @@ class DotRenderer:
             text = ""
             for good, amount in location.goods_quantity.iteritems():
                 text += str(good) + "=" + str(amount) + ", "
-            text_rendered = self.font.render(text[:-2], 1, (255, 255, 255))
+            text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
             window.blit(text_rendered, (location.x, location.y))
+
+    def _render_overlay(self, window, simulation):
+        time_text = self.overlay_font.render(simulation.time_str(), 1, (255, 255, 255))
+        window.blit(time_text, (5, 5))

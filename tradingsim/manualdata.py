@@ -32,14 +32,14 @@ def create_simulation():
 
             location = Location(str(ii), x, y)
             for goods in simulation.goods:
-                location.goods_creation_rate[goods] = random.randint(0, 10) / 10
-                location.goods_consumption_rate[goods] = random.randint(0, 10) / 10
+                location.goods_creation_rate[goods] = random.randint(0, 10) / 10.0
+                location.goods_consumption_rate[goods] = random.randint(0, 10) / 10.0
 
             simulation.locations.append(location)
 
-    simulation = Simulation(configuration.SIMULATION_STEP_MS,
-                            configuration.SIMULATION_WIDTH,
-                            configuration.SIMULATION_HEIGHT)
+    simulation = Simulation(configuration.SIMULATION_WIDTH,
+                            configuration.SIMULATION_HEIGHT,
+                            configuration.BASE_MS_TO_MINUTES)
     create_goods(simulation)
 
     create_locations(simulation)

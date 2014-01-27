@@ -25,7 +25,7 @@ class Game:
             self.handle_input()
 
             if not self.paused:
-                self.simulation.step()
+                self.simulation.step(1000 / configuration.FPS)
 
             self.renderer.render(self.window, self.simulation)
 
