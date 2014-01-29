@@ -1,3 +1,4 @@
+import math
 import pygame
 
 
@@ -16,6 +17,7 @@ class Simulation:
         self.minutes_since_start = 0
         self.width = width
         self.height = height
+        self.max_distance = math.sqrt(math.pow(width, 2) + math.pow(height, 2))
         self.agents = []
         self.locations = []
         self.goods = []
