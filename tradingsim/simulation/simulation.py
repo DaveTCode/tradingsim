@@ -34,7 +34,7 @@ class Simulation:
         self.minutes_since_start += step_time_minutes
 
         for agent in self.agents:
-            agent.step(step_time_minutes)
+            agent.step(step_time_minutes, self)
 
         for location in self.locations:
             location.step(step_time_minutes)

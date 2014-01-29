@@ -24,13 +24,14 @@ class DotRenderer:
         self._update_viewport()
 
         (mouse_x, mouse_y) = pygame.mouse.get_pos()
+        mouse_simulation_x, mouse_simulation_y = self._window_to_agent_coords(mouse_x, mouse_y)
 
         for agent in simulation.agents:
             self._render_agent(window, agent)
 
         for location in simulation.locations:
-            render_location_text = (abs(location.x - mouse_x) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT and
-                                    abs(location.y - mouse_y) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT)
+            render_location_text = (abs(location.x - mouse_simulation_x) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT and
+                                    abs(location.y - mouse_simulation_y) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT)
 
             self._render_location(window, location, render_location_text)
 
@@ -98,7 +99,7 @@ class DotRenderer:
             for good, amount in location.goods_quantity.iteritems():
                 text += str(good) + "=" + str(amount) + ", "
             text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
-            window.blit(text_rendered, (location.x, location.y))
+            window.blit(text_rendered, (x, y))
 
     def _render_overlay(self, window, simulation):
         time_text = self.overlay_font.render(simulation.time_str(), 1, (255, 255, 255))
