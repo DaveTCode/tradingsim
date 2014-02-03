@@ -13,7 +13,7 @@ class Simulation:
                 corresponds to.
         '''
         self.base_ms_to_minutes = ms_to_minutes
-        self.current_ms_to_minutes = ms_to_minutes
+        self.zoom = 1
         self.minutes_since_start = 0
         self.width = width
         self.height = height
@@ -30,27 +30,29 @@ class Simulation:
             This maps to a particular number of simulation minutes as defined
             in the constructor.
         '''
-        step_time_minutes = dt_ms * self.current_ms_to_minutes
-        self.minutes_since_start += step_time_minutes
+        step_time_minutes = dt_ms * self.base_ms_to_minutes
 
-        for agent in self.agents:
-            agent.step(step_time_minutes, self)
+        for i in range(0, self.zoom):
+            self.minutes_since_start += step_time_minutes
 
-        for location in self.locations:
-            location.step(step_time_minutes)
+            for agent in self.agents:
+                agent.step(step_time_minutes, self)
+
+            for location in self.locations:
+                location.step(step_time_minutes)
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
-                self.current_ms_to_minutes = self.base_ms_to_minutes
+                self.zoom = 1
             elif event.key == pygame.K_2:
-                self.current_ms_to_minutes = self.base_ms_to_minutes * 2
+                self.zoom = 2
             elif event.key == pygame.K_3:
-                self.current_ms_to_minutes = self.base_ms_to_minutes * 5
+                self.zoom = 5
             elif event.key == pygame.K_4:
-                self.current_ms_to_minutes = self.base_ms_to_minutes * 10
+                self.zoom = 10
             elif event.key == pygame.K_5:
-                self.current_ms_to_minutes = self.base_ms_to_minutes * 100
+                self.zoom = 100
 
     def time_str(self):
         '''
@@ -59,6 +61,5 @@ class Simulation:
         '''
         hours = self.minutes_since_start // 60
         minutes = self.minutes_since_start % 60.0
-        zoom = self.current_ms_to_minutes // self.base_ms_to_minutes
 
-        return "{0:d}:{1:d}    ({2:d})".format(int(hours), int(minutes), int(zoom))
+        return "{0:d}:{1:d}    (x{2:d})".format(int(hours), int(minutes), int(self.zoom))
