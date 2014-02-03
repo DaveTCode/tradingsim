@@ -25,7 +25,8 @@ class Agent:
         self.ai.act(simulation)  # TODO: Maybe don't call on every step.
 
     def velocity(self):
-        if self.destination is None:
+        if self.destination is None or (self.destination.x == self.x and
+                                        self.destination.y == self.y):
             return (0, 0)
         else:
             dx = self.destination.x - self.x
