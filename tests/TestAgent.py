@@ -1,7 +1,9 @@
 import math
 import unittest
+import tradingsim.configuration as configuration
+from tradingsim.simulation.agent import Agent, AgentGood
+from tradingsim.simulation.goods import Goods
 from tradingsim.simulation.location import Location
-from tradingsim.simulation.agent import Agent
 
 
 class AgentTests(unittest.TestCase):
@@ -46,3 +48,11 @@ class AgentTests(unittest.TestCase):
         location.y = 99
         self.assertAlmostEqual(agent.velocity()[0], 0)
         self.assertAlmostEqual(agent.velocity()[1], -1 * agent.speed)
+
+    def test_space_remaining_function(self):
+        agent = Agent("a", 1, 1)
+        good1 = Goods("1", 1, 1, 1)
+        good2 = Goods("2", 1, 1, 1)
+        agent.goods[good1] = AgentGood(good1, 5, 1)
+        agent.goods[good2] = AgentGood(good2, 2, 1)
+        self.assertEqual(agent.space_remaining(), configuration.AGENT_MAX_GOODS - 5 - 2)
