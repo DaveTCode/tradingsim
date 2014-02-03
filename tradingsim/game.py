@@ -1,8 +1,6 @@
 import pygame
 import sys
-import configuration as configuration
-from renderers.dotrenderer import DotRenderer
-import manualdata
+import tradingsim.configuration as configuration
 
 
 class Game:
@@ -46,16 +44,3 @@ class Game:
                 self.simulation.handle_event(event)
                 self.renderer.handle_event(event)
                 self._handle_event(event)
-
-if __name__ == "__main__":
-    pygame.init()
-    pygame.font.init()
-
-    simulation = manualdata.create_simulation()
-    renderer = DotRenderer()
-    game = Game(configuration.WIDTH,
-                configuration.HEIGHT,
-                simulation,
-                renderer)
-
-    game.run()

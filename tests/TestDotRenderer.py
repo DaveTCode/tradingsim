@@ -1,8 +1,14 @@
+import pygame
+
 import unittest
 from tradingsim.renderers.dotrenderer import DotRenderer
 
 
 class DotRendererTests(unittest.TestCase):
+
+    def setUp(self):
+        pygame.init()
+        pygame.font.init()
 
     def test_agent_to_window_coords_no_change(self):
         renderer = DotRenderer()

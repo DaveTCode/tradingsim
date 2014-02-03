@@ -1,10 +1,10 @@
 import random
 
-import configuration
-from simulation.agent import Agent
-from simulation.goods import Goods
-from simulation.location import Location
-from simulation.simulation import Simulation
+import tradingsim.configuration as configuration
+from tradingsim.simulation.agent import Agent
+from tradingsim.simulation.goods import Goods
+from tradingsim.simulation.location import Location
+from tradingsim.simulation.simulation import Simulation
 
 
 def create_simulation():

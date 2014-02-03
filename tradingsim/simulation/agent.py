@@ -1,6 +1,6 @@
 import math
 import random
-import configuration
+import tradingsim.configuration as configuration
 
 
 class Agent:

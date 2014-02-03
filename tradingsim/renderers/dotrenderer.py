@@ -1,5 +1,5 @@
 import pygame
-import configuration
+import tradingsim.configuration as configuration
 
 
 class DotRenderer:
