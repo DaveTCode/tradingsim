@@ -12,6 +12,7 @@ class Agent:
         self.name = name
         self.goods = {}
         self.money = configuration.INITIAL_AGENT_MONEY
+        self.max_goods = configuration.AGENT_MAX_GOODS
         self.destination = None
         self.last_location = None
 
@@ -21,6 +22,9 @@ class Agent:
         vel = self.velocity()
         self.x += dt * vel[0]
         self.y += dt * vel[1]
+
+        if (self.destination is not None and self.destination.x == self.x and self.destination.y == self.y):
+            self.arrive()
 
         self.ai.act(simulation)  # TODO: Maybe don't call on every step.
 
@@ -42,6 +46,24 @@ class Agent:
             An agent is defined as dead if they have no money and no goods to sell.
         '''
         return self.money == 0 and len([good for good in self.goods.keys() if self.goods[good] == 0])
+
+    def arrive(self):
+        '''
+            Called when the agent arrives at their destination.
+        '''
+        self.last_location = self.destination
+        self.destination = None
+
+        self.ai.arrived(self.last_location)
+
+    def space_remaining(self):
+        '''
+            The amount of space remaining taking into account the goods
+            already purchased.
+        '''
+        return self.max_goods - reduce(lambda x, y: x + y.amount,
+                                       [good_amount for good, good_amount in self.goods.iteritems()],
+                                       0)
 
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)
@@ -66,6 +88,43 @@ class AgentAI:
     def act(self, simulation):
         if self.agent.destination is None:
             self.agent.destination = self._choose_purchase_destination(simulation)
+
+    def arrived(self, destination):
+        def _maybe_sell(destination):
+            agent_goods = {good: value for good, value in self.agent.goods.iteritems() if value.amount > 0}
+
+            if len(agent_goods) == 0:
+                return False
+            else:
+                for good, good_amount in agent_goods:
+                    for num_to_sell in range(good_amount.amount, 1, -1):
+                        if good.sale_cost(destination.goods_quantity[good], num_to_sell) > good_amount.average_purchase_cost:
+                            self.agent.sell(destination, good, num_to_sell)
+                            break
+
+        def _maybe_buy(destination):
+            for good in [good for good, amount in destination.goods_quantity.iteritems() if amount > 0]:
+                space_remaining = self.agent.space_remaining()
+
+                if not good in self.last_known_costs.keys():
+                    # Never seen the good before. Buy up all we can afford and
+                    # will fit.
+                    pass  # TODO - Work out how to do this.
+                else:
+                    # Seen this before, only buy it if it is cheaper on average
+                    # here.
+                    actual_num_to_buy = 0
+                    for possible_num_to_buy in range(1, space_remaining):
+                        cost_to_buy = good.purchase_cost(destination.goods_quantity[good], possible_num_to_buy)
+                        if cost_to_buy > self.agent.money:
+                            break
+                        elif 1 == 1:  # TODO complete
+                            pass
+
+                    self.agent.buy(destination, good, actual_num_to_buy)
+
+        _maybe_sell(destination)
+        _maybe_buy(destination)
 
     def _choose_sale_destination(self, simulation):
         def _score_unvisited_location(location):
@@ -122,7 +181,7 @@ class AgentAI:
             goods_not_worth_buying = 0
             for good, cost in self.last_known_costs[location].iteritems():
                 if good in self.last_sale_value:
-                    if self.last_sale_value - cost > self.good_profit_per_item:
+                    if self.last_sale_value[good] - cost > self.good_profit_per_item:
                         goods_worth_buying += 1
                     else:
                         goods_not_worth_buying += 1
