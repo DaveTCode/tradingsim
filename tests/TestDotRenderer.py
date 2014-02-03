@@ -7,6 +7,9 @@ from tradingsim.renderers.dotrenderer import DotRenderer
 class DotRendererTests(unittest.TestCase):
 
     def setUp(self):
+        '''
+            Renderer uses font objects so need to set this up.
+        '''
         pygame.init()
         pygame.font.init()
 
@@ -42,6 +45,27 @@ class DotRendererTests(unittest.TestCase):
         self.assertEqual(renderer._window_to_agent_coords(0, 0), (0, 0))
         self.assertEqual(renderer._window_to_agent_coords(10, 10), (10, 10))
         self.assertEqual(renderer._window_to_agent_coords(0, 21), (0, 21))
+
+    def test_window_to_agent_coords_offset(self):
+        renderer = DotRenderer()
+        renderer.move_camera(5, 7)
+        self.assertEqual(renderer._window_to_agent_coords(0, 0), (5, 7))
+        self.assertEqual(renderer._window_to_agent_coords(10, 10), (15, 17))
+        self.assertEqual(renderer._window_to_agent_coords(0, 21), (5, 28))
+
+    def test_window_to_agent_coords_zoom(self):
+        renderer = DotRenderer()
+        renderer.zoom_camera(1)
+        self.assertEqual(renderer._window_to_agent_coords(0, 0), (0, 0))
+        self.assertEqual(renderer._window_to_agent_coords(10, 10), (5, 5))
+        self.assertEqual(renderer._window_to_agent_coords(4, 22), (2, 11))
+
+    def test_window_to_agent_coords_scale_and_move(self):
+        renderer = DotRenderer()
+        renderer.zoom_camera(1)
+        renderer.move_camera(19, 1)
+        self.assertEqual(renderer._window_to_agent_coords(0, 0), (9, 0))
+        self.assertEqual(renderer._window_to_agent_coords(10, 10), (14, 5))
 
 if __name__ == '__main__':
     unittest.main()
