@@ -1,6 +1,7 @@
 import math
 import random
 import tradingsim.configuration as configuration
+import tradingsim.utils as utils
 
 
 class Agent:
@@ -20,11 +21,16 @@ class Agent:
 
     def step(self, dt, simulation):
         vel = self.velocity()
-        self.x += dt * vel[0]
-        self.y += dt * vel[1]
 
-        if (self.destination is not None and self.destination.x == self.x and self.destination.y == self.y):
+        next_x = self.x + dt * vel[0]
+        next_y = self.y + dt * vel[1]
+
+        if not self.destination is None and utils.is_point_on_line_segment(self.x, self.y, next_x, next_y, self.destination.x, self.destination.y):
+            print "Arriving"
             self.arrive()
+
+        self.x = next_x
+        self.y = next_y
 
         self.ai.act(simulation)  # TODO: Maybe don't call on every step.
 
@@ -51,10 +57,13 @@ class Agent:
         '''
             Called when the agent arrives at their destination.
         '''
-        self.last_location = self.destination
-        self.destination = None
+        self.x = self.destination.x
+        self.y = self.destination.y
 
         self.ai.arrived(self.last_location)
+
+        self.last_location = self.destination
+        self.destination = None
 
     def space_remaining(self):
         '''
@@ -64,6 +73,31 @@ class Agent:
         return self.max_goods - reduce(lambda x, y: x + y.amount,
                                        [good_amount for good, good_amount in self.goods.iteritems()],
                                        0)
+
+    def buy(self, destination, good, amount):
+        '''
+            Attempt to purchase the requested amount of goods.
+        '''
+        cost = good.purchase_cost(destination.goods_quantity[good], amount)
+        if not good in self.goods.keys():
+            self.goods[good] = AgentGood(good, amount, cost / amount)
+        else:
+            self.goods[good].amount += amount
+            self.goods[good].average_purchase_cost = cost / amount
+
+        self.money -= cost
+        self.destination.goods_quantity[good] -= amount
+
+    def sell(self, destination, good, amount):
+        '''
+            Attempt to sell the requested number of goods.
+        '''
+        cost = good.sale_cost(destination.goods_quantity[good], amount)
+
+        self.goods[good].amount -= amount
+
+        self.money += cost
+        self.destination.goods_quantity[good] += amount
 
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)
@@ -106,22 +140,28 @@ class AgentAI:
             for good in [good for good, amount in destination.goods_quantity.iteritems() if amount > 0]:
                 space_remaining = self.agent.space_remaining()
 
-                if not good in self.last_known_costs.keys():
-                    # Never seen the good before. Buy up all we can afford and
-                    # will fit.
-                    pass  # TODO - Work out how to do this.
-                else:
-                    # Seen this before, only buy it if it is cheaper on average
-                    # here.
-                    actual_num_to_buy = 0
-                    for possible_num_to_buy in range(1, space_remaining):
-                        cost_to_buy = good.purchase_cost(destination.goods_quantity[good], possible_num_to_buy)
-                        if cost_to_buy > self.agent.money:
+                actual_num_to_buy = 0
+                for possible_num_to_buy in range(1, space_remaining):
+                    cost_to_buy = good.purchase_cost(destination.goods_quantity[good], possible_num_to_buy)
+                    cost_per_item = int(math.ceil(cost_to_buy / possible_num_to_buy))
+                    if cost_to_buy > self.agent.money:
+                        # Stop buying if we run out of money
+                        break
+                    elif possible_num_to_buy > destination.goods_quantity[good]:
+                        # Destination doesn't have any more so stop buying.
+                        break
+                    elif good in self.last_sale_value.keys():
+                        if cost_per_item > self.last_sale_value[good]:
+                            # Stop buying if it is now more expensive than the last time we sold.
                             break
-                        elif 1 == 1:  # TODO complete
-                            pass
+                    elif good in self.last_known_costs.keys():
+                        if cost_per_item > self.last_known_costs[good]:
+                            # Stop buying if it is now more expensive than the last time we bought.
+                            break
+                    else:
+                        actual_num_to_buy = possible_num_to_buy
 
-                    self.agent.buy(destination, good, actual_num_to_buy)
+                self.agent.buy(destination, good, actual_num_to_buy)
 
         _maybe_sell(destination)
         _maybe_buy(destination)
