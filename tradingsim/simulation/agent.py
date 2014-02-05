@@ -26,7 +26,6 @@ class Agent:
         next_y = self.y + dt * vel[1]
 
         if not self.destination is None and utils.is_point_on_line_segment(self.x, self.y, next_x, next_y, self.destination.x, self.destination.y):
-            print "Arriving"
             self.arrive()
 
         self.x = next_x
@@ -60,7 +59,7 @@ class Agent:
         self.x = self.destination.x
         self.y = self.destination.y
 
-        self.ai.arrived(self.last_location)
+        self.ai.arrived(self.destination)
 
         self.last_location = self.destination
         self.destination = None
@@ -130,7 +129,7 @@ class AgentAI:
             if len(agent_goods) == 0:
                 return False
             else:
-                for good, good_amount in agent_goods:
+                for good, good_amount in agent_goods.iteritems():
                     for num_to_sell in range(good_amount.amount, 1, -1):
                         if good.sale_cost(destination.goods_quantity[good], num_to_sell) > good_amount.average_purchase_cost:
                             self.agent.sell(destination, good, num_to_sell)
@@ -161,7 +160,8 @@ class AgentAI:
                     else:
                         actual_num_to_buy = possible_num_to_buy
 
-                self.agent.buy(destination, good, actual_num_to_buy)
+                if actual_num_to_buy > 0:
+                    self.agent.buy(destination, good, actual_num_to_buy)
 
         _maybe_sell(destination)
         _maybe_buy(destination)
