@@ -15,6 +15,7 @@ class Agent:
         self.goods = {}
         self.money = configuration.INITIAL_AGENT_MONEY
         self.max_goods = configuration.AGENT_MAX_GOODS
+        self.current_location = None
         self.destination = None
         self.last_location = None
 
@@ -63,7 +64,7 @@ class Agent:
 
         self.ai.arrived(self.destination)
 
-        self.last_location = self.destination
+        self.current_location = self.destination
         self.destination = None
 
     def space_remaining(self):
@@ -110,6 +111,11 @@ class Agent:
         self.destination.goods_quantity[good] += amount
         logging.debug("Agent {0} sells {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination))
 
+    def set_destination(self, destination):
+        self.destination = destination
+        self.last_location = self.current_location
+        self.current_location = None
+
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)
 
@@ -128,17 +134,17 @@ class AgentAI:
         self.agent = agent
         self.last_known_costs = {}
         self.last_sale_value = {}
-        self.good_profit_per_item = 1  # Changes over time as the AI finds it can get more
+        self.good_profit_per_item = 1  # Changes over time as the AI finds it can get more. TODO
 
     def act(self, simulation):
         if self.agent.destination is None:
             if self.agent.last_location is None:
-                self.agent.destination = self._choose_purchase_destination(simulation)
+                self.agent.set_destination(self._choose_purchase_destination(simulation))
             else:
                 if self.agent.space_remaining() > self.agent.total_goods():
-                    self.agent.destination = self._choose_purchase_destination(simulation)
+                    self.agent.set_destination(self._choose_purchase_destination(simulation))
                 else:
-                    self.agent.destination = self._choose_sale_destination(simulation)
+                    self.agent.set_destination(self._choose_sale_destination(simulation))
 
     def arrived(self, destination):
         def _maybe_sell(destination):
@@ -212,7 +218,7 @@ class AgentAI:
             else:
                 return _score_unvisited_location(location) - goods_not_worth_selling
 
-        weighted_locations = {location: 0 for location in simulation.locations}
+        weighted_locations = {location: 0 for location in simulation.locations if location != self.agent.current_location}
 
         for location in weighted_locations.keys():
             if location in self.last_known_costs.keys():
@@ -249,7 +255,7 @@ class AgentAI:
             else:
                 return _score_unvisited_location(location) + goods_not_worth_buying
 
-        weighted_locations = {location: 0 for location in simulation.locations}
+        weighted_locations = {location: 0 for location in simulation.locations if location != self.agent.current_location}
 
         for location in weighted_locations.keys():
             if location in self.last_known_costs.keys():
