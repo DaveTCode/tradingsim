@@ -36,3 +36,5 @@ cover
 .project
 .pydevproject
 trading-sim.sublime-workspace
+
+log.txt

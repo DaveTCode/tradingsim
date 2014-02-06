@@ -1,3 +1,4 @@
+import logging
 import math
 import random
 import tradingsim.configuration as configuration
@@ -56,6 +57,7 @@ class Agent:
         '''
             Called when the agent arrives at their destination.
         '''
+        logging.debug("Agent {0} arrives at {1}".format(self.name, self.destination))
         self.x = self.destination.x
         self.y = self.destination.y
 
@@ -73,6 +75,14 @@ class Agent:
                                        [good_amount for good, good_amount in self.goods.iteritems()],
                                        0)
 
+    def total_goods(self):
+        '''
+            The total number of all goods in stock
+        '''
+        return reduce(lambda x, y: x + y.amount,
+                      [good_amount for good, good_amount in self.goods.iteritems()],
+                      0)
+
     def buy(self, destination, good, amount):
         '''
             Attempt to purchase the requested amount of goods.
@@ -85,7 +95,8 @@ class Agent:
             self.goods[good].average_purchase_cost = cost / amount
 
         self.money -= cost
-        self.destination.goods_quantity[good] -= amount
+        destination.goods_quantity[good] -= amount
+        logging.debug("Agent {0} purchases {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination))
 
     def sell(self, destination, good, amount):
         '''
@@ -97,6 +108,7 @@ class Agent:
 
         self.money += cost
         self.destination.goods_quantity[good] += amount
+        logging.debug("Agent {0} sells {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination))
 
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)
@@ -120,7 +132,13 @@ class AgentAI:
 
     def act(self, simulation):
         if self.agent.destination is None:
-            self.agent.destination = self._choose_purchase_destination(simulation)
+            if self.agent.last_location is None:
+                self.agent.destination = self._choose_purchase_destination(simulation)
+            else:
+                if self.agent.space_remaining() > self.agent.total_goods():
+                    self.agent.destination = self._choose_purchase_destination(simulation)
+                else:
+                    self.agent.destination = self._choose_sale_destination(simulation)
 
     def arrived(self, destination):
         def _maybe_sell(destination):
