@@ -49,6 +49,13 @@ class AgentTests(unittest.TestCase):
         self.assertAlmostEqual(agent.velocity()[0], 0)
         self.assertAlmostEqual(agent.velocity()[1], -1 * agent.speed)
 
+        location.x = 484
+        location.y = 235
+        agent.x = 558
+        agent.y = 184
+        self.assertAlmostEqual(agent.velocity()[0], -8.233920666857287)
+        self.assertAlmostEqual(agent.velocity()[1], 5.6747291082394815)
+
     def test_space_remaining_function(self):
         agent = Agent("a", 1, 1)
         good1 = Goods("1", 1, 1, 1)

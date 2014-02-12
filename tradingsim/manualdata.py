@@ -39,7 +39,7 @@ def create_simulation():
             simulation.locations.append(location)
 
     def create_agents(simulation):
-        for ii in range(0, random.randint(10, 20)):
+        for ii in range(0, random.randint(configuration.MIN_AGENTS, configuration.MAX_AGENTS)):
             x = random.randint(0, simulation.width)
             y = random.randint(0, simulation.height)
 

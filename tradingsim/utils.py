@@ -1,4 +1,5 @@
 from __future__ import division
+import configuration
 
 
 def is_point_on_line_segment(x1, y1, x2, y2, px, py):
@@ -13,4 +14,4 @@ def is_point_on_line_segment(x1, y1, x2, y2, px, py):
         m = (y2 - y1) / (x2 - x1)
         c = y2 - m * x2
 
-        return py == px * m + c and py < top and py > bottom and px < right and px > left
+        return abs(py - (px * m + c)) < configuration.FLOATING_POINT_RESOLUTION and py <= top and py >= bottom and px <= right and px >= left
