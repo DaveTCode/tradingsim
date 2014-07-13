@@ -14,6 +14,7 @@ FPS = 30
 BASE_MS_TO_MINUTES = 1.0 / 1000.0  # i.e. 1s == 1 minute
 
 AGENT_COLOR = pygame.Color(0, 0, 255)
+AGENT_DEAD_COLOR = pygame.Color(0, 255, 255)
 AGENT_RADIUS = 3
 
 LOCATION_COLOR = pygame.Color(255, 0, 0)
