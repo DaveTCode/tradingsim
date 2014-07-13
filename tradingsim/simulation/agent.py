@@ -31,6 +31,7 @@ class Agent:
         next_y = self.y + dt * vel[1]
 
         if not self.destination is None and utils.is_point_on_line_segment(self.x, self.y, next_x, next_y, self.destination.x, self.destination.y):
+            print "Arrived {0}".format(self.name)
             self.arrive()
 
         self.x = next_x
