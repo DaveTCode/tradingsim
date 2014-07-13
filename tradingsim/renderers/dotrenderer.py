@@ -89,7 +89,7 @@ class DotRenderer:
                            configuration.AGENT_RADIUS)
 
         if render_agent_text:
-            text = ""
+            text = "Agent {0}: ".format(agent.name)
             for good, agent_good in agent.goods.iteritems():
                 text += str(good) + "=" + str(agent_good.amount) + ", "
 
