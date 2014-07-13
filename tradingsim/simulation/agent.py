@@ -105,6 +105,7 @@ class Agent:
         '''
             Attempt to sell the requested number of goods.
         '''
+        print "Agent {0} SELLING! {1} of {2}".format(self.name, amount, good)
         cost = good.sale_cost(destination.goods_quantity[good], amount)
 
         self.goods[good].amount -= amount
@@ -153,6 +154,7 @@ class AgentAI:
             agent_goods = {good: value for good, value in self.agent.goods.iteritems() if value.amount > 0}
 
             if len(agent_goods) == 0:
+                print "Agent {0} has nothing to sell".format(self.agent.name)
                 return False
             else:
                 for good, good_amount in agent_goods.iteritems():
