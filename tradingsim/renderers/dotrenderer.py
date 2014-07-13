@@ -116,3 +116,6 @@ class DotRenderer:
     def _render_overlay(self, window, simulation):
         time_text = self.overlay_font.render(simulation.time_str(), 1, (255, 255, 255))
         window.blit(time_text, (5, 5))
+
+        money_text = self.overlay_font.render("Money: " + str(reduce(lambda x,y: x+y, [agent.money for agent in simulation.agents])), 1, (255, 255, 255))
+        window.blit(money_text, (100, 5))
