@@ -27,7 +27,10 @@ class DotRenderer:
         mouse_simulation_x, mouse_simulation_y = self._window_to_agent_coords(mouse_x, mouse_y)
 
         for agent in simulation.agents:
-            self._render_agent(window, agent)
+            render_agent_text = (abs(agent.x - mouse_simulation_x) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT and
+                                 abs(agent.y - mouse_simulation_y) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT)
+
+            self._render_agent(window, agent, render_agent_text)
 
         for location in simulation.locations:
             render_location_text = (abs(location.x - mouse_simulation_x) < configuration.DIST_FROM_LOCATION_TO_HIGHLIGHT and
@@ -76,13 +79,22 @@ class DotRenderer:
     def _window_to_agent_coords(self, x, y):
         return ((x + self.top_left_x) / self.scale, (y + self.top_left_y) / self.scale)
 
-    def _render_agent(self, window, agent):
+    def _render_agent(self, window, agent, render_agent_text):
         (x, y) = self._agent_to_window_coords(agent.x, agent.y)
+        color = configuration.AGENT_DEAD_COLOR if agent.is_dead() else configuration.AGENT_COLOR
 
         pygame.draw.circle(window,
                            configuration.AGENT_COLOR,
                            (int(x), int(y)),
                            configuration.AGENT_RADIUS)
+
+        if render_agent_text:
+            text = ""
+            for good, agent_good in agent.goods.iteritems():
+                text += str(good) + "=" + str(agent_good.amount) + ", "
+
+            text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
+            window.blit(text_rendered, (x, y))
 
     def _render_location(self, window, location, render_text):
         (x, y) = self._agent_to_window_coords(location.x, location.y)
