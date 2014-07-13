@@ -22,6 +22,9 @@ class Agent:
         self.ai = AgentAI(self)  # Owned by the agent but also holds a reference. 1-1 relationship
 
     def step(self, dt, simulation):
+        if self.is_dead():
+            logging.debug("Agent {0} is dead".format(self.name))
+
         vel = self.velocity()
 
         next_x = self.x + dt * vel[0]

@@ -25,11 +25,11 @@ class Goods:
         final_cost = self.purchase_cost_of_one(current_amount - purchase_amount)
         total_cost = math.ceil(float(purchase_amount) * (initial_cost + final_cost) / 2.0)
 
-        return int(total_cost)  # Response should in full units
+        return int(total_cost)  # Response should be in full units
 
     def sale_cost(self, current_amount, sale_amount):
         '''
-            TODO: For now the sale cose is defined as equal to the purchase
+            TODO: For now the sale cost is defined as equal to the purchase
             cost.
         '''
         initial_cost = self.purchase_cost_of_one(current_amount)
