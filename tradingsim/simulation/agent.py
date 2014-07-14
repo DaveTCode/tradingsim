@@ -45,6 +45,7 @@ class Agent:
             dx = self.destination.x - self.x
             dy = self.destination.y - self.y
             theta = math.atan2(dx, dy)
+
             return (self.speed * math.sin(theta), self.speed * math.cos(theta))
 
     def distance_to_location(self, location):
@@ -118,6 +119,7 @@ class Agent:
         self.destination = destination
         self.last_location = self.current_location
         self.current_location = None
+        logging.debug("Agent {0} sets destination to {1} nd will have velocity {2}".format(self.name, destination, self.velocity()))
 
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)
@@ -141,6 +143,7 @@ class AgentAI:
 
     def act(self, simulation):
         if self.agent.destination is None:
+            logging.debug("Agent {0} has no current destination".format(self.agent.name))
             if self.agent.last_location is None:
                 self.agent.set_destination(self._choose_purchase_destination(simulation))
             else:
@@ -178,7 +181,7 @@ class AgentAI:
                         # Destination doesn't have any more so stop buying.
                         break
                     elif good in self.last_sale_value.keys():
-                        if cost_per_item > self.last_sale_value[good]:
+                        if cost_per_item >= self.last_sale_value[good]:
                             # Stop buying if it is now more expensive than the last time we sold.
                             break
                     elif good in self.last_known_costs.keys():
@@ -230,6 +233,7 @@ class AgentAI:
             else:
                 weighted_locations[location] = _score_unvisited_location(location)
 
+        logging.debug("Choosing from {0} sale destinations".format(len(weighted_locations.keys())))
         return self._choose_from_weighted_locations(weighted_locations)
 
     def _choose_purchase_destination(self, simulation):
@@ -272,7 +276,7 @@ class AgentAI:
     def _choose_from_weighted_locations(self, locations):
         sorted_locations = sorted(locations.items(), key=lambda x: x[1])
         index = 0
-        while random.randint(0, 10) > 9:
+        while random.randint(0, 10) > 9 and index < len(sorted_locations):
             index = (index + 1) % len(sorted_locations)
 
         return sorted_locations[index][0]

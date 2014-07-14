@@ -13,7 +13,6 @@ def is_point_on_line_segment(x1, y1, x2, y2, px, py):
     else:
         m = (y2 - y1) / (x2 - x1)
         c = y2 - m * x2
-
         return are_numbers_nearly_equal(py, px * m + c) and py < top and py > bottom and px < right and px > left
 
 def are_points_nearly_equal(x1, y1, x2, y2, epsilon=configuration.EPSILON):

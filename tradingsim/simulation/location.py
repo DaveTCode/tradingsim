@@ -30,4 +30,4 @@ class Location:
                 self.goods_quantity[good] = int(new_amount)
 
     def __str__(self):
-        return self.name
+        return "{0} ({1},{2})".format(self.name, self.x, self.y)

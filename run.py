@@ -12,9 +12,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.loglevel == 'DEBUG':
-        logging.basicConfig(filename="log.txt", level=logging.DEBUG)
+        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename="log.txt", level=logging.DEBUG)
     else:
-        logging.basicConfig(filename="log.txt", level=logging.ERROR)
+        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename="log.txt", level=logging.ERROR)
 
     pygame.init()
     pygame.font.init()

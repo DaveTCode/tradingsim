@@ -83,6 +83,8 @@ class DotRenderer:
         (x, y) = self._agent_to_window_coords(agent.x, agent.y)
         color = configuration.AGENT_DEAD_COLOR if agent.is_dead() else configuration.AGENT_COLOR
 
+        text_rendered = self.details_font.render(agent.name + "(" + str(agent.money) + ")", 1, configuration.AGENT_COLOR)
+        window.blit(text_rendered, (int(x) + 5, int(y) + 5))
         pygame.draw.circle(window,
                            configuration.AGENT_COLOR,
                            (int(x), int(y)),
@@ -107,7 +109,7 @@ class DotRenderer:
                           configuration.LOCATION_WIDTH))
 
         if render_text:
-            text = ""
+            text = location.name + " "
             for good, amount in location.goods_quantity.iteritems():
                 text += str(good) + "=" + str(amount) + ", "
             text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
