@@ -21,6 +21,8 @@ class Agent:
 
         self.ai = AgentAI(self)  # Owned by the agent but also holds a reference. 1-1 relationship
 
+        self.history = []
+
     def step(self, dt, simulation):
         if self.is_dead():
             logging.debug("Agent {0} is dead".format(self.name))
@@ -61,7 +63,10 @@ class Agent:
         '''
             Called when the agent arrives at their destination.
         '''
-        logging.debug("Agent {0} arrives at {1}".format(self.name, self.destination))
+        message = "Agent {0} arrives at {1}".format(self.name, self.destination)
+        logging.debug(message)
+        self.history.append(message)
+
         self.x = self.destination.x
         self.y = self.destination.y
 
@@ -100,26 +105,34 @@ class Agent:
 
         self.money -= cost
         destination.goods_quantity[good] -= amount
-        logging.debug("Agent {0} purchases {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination))
+
+        message = "Agent {0} purchases {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination)
+        logging.debug(message)
+        self.history.append(message)
 
     def sell(self, destination, good, amount):
         '''
             Attempt to sell the requested number of goods.
         '''
-        print "Agent {0} SELLING! {1} of {2}".format(self.name, amount, good)
         cost = good.sale_cost(destination.goods_quantity[good], amount)
 
         self.goods[good].amount -= amount
 
         self.money += cost
         self.destination.goods_quantity[good] += amount
-        logging.debug("Agent {0} sells {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination))
+
+        message = "Agent {0} sells {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination)
+        logging.debug(message)
+        self.history.append(message)
 
     def set_destination(self, destination):
         self.destination = destination
         self.last_location = self.current_location
         self.current_location = None
-        logging.debug("Agent {0} sets destination to {1} nd will have velocity {2}".format(self.name, destination, self.velocity()))
+
+        message = "Agent {0} sets destination to {1}".format(self.name, destination)
+        logging.debug(message)
+        self.history.append(message)
 
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)

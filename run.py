@@ -5,6 +5,7 @@ import tradingsim.configuration as configuration
 from tradingsim.game import Game
 import tradingsim.manualdata as manualdata
 from tradingsim.renderers.dotrenderer import DotRenderer
+import sys
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the trading simulation application')
@@ -12,9 +13,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.loglevel == 'DEBUG':
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename="log.txt", level=logging.DEBUG)
+        logging.basicConfig(format='%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s', filename="log.txt", level=logging.DEBUG)
+        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     else:
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename="log.txt", level=logging.ERROR)
+        logging.basicConfig(format='%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s', filename="log.txt", level=logging.ERROR)
 
     pygame.init()
     pygame.font.init()
