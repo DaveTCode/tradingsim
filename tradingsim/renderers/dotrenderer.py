@@ -1,3 +1,4 @@
+import functools
 import pygame
 import tradingsim.configuration as configuration
 
@@ -8,7 +9,7 @@ class DotRenderer:
         self.top_left_x = 0
         self.top_left_y = 0
         self.scale = 1
-        self.keys = {v: (k, False) for (k, v) in configuration.RENDERER_KEY_CONFIG.iteritems()}
+        self.keys = {v: (k, False) for (k, v) in configuration.RENDERER_KEY_CONFIG.items()}
         self.location_highlighted = None
         self.details_font = pygame.font.Font(None, 12)
         self.overlay_font = pygame.font.Font(None, 24)
@@ -47,7 +48,7 @@ class DotRenderer:
             self.keys[event.key] = (self.keys[event.key][0], False)
 
     def _update_viewport(self):
-        keys_down = [v[0] for (k, v) in self.keys.iteritems() if v[1]]
+        keys_down = [v[0] for (k, v) in self.keys.items() if v[1]]
         dx = 0
         dy = 0
         dz = 0
@@ -92,7 +93,7 @@ class DotRenderer:
 
         if render_agent_text:
             text = "Agent {0}: ".format(agent.name)
-            for good, agent_good in agent.goods.iteritems():
+            for good, agent_good in agent.goods.items():
                 text += str(good) + "=" + str(agent_good.amount) + ", "
 
             text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
@@ -110,7 +111,7 @@ class DotRenderer:
 
         if render_text:
             text = location.name + " "
-            for good, amount in location.goods_quantity.iteritems():
+            for good, amount in location.goods_quantity.items():
                 text += str(good) + "=" + str(amount) + ", "
             text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
             window.blit(text_rendered, (x, y))
@@ -119,5 +120,5 @@ class DotRenderer:
         time_text = self.overlay_font.render(simulation.time_str(), 1, (255, 255, 255))
         window.blit(time_text, (5, 5))
 
-        money_text = self.overlay_font.render("Money: " + str(reduce(lambda x,y: x+y, [agent.money for agent in simulation.agents])), 1, (255, 255, 255))
+        money_text = self.overlay_font.render("Money: " + str(functools.reduce(lambda x,y: x+y, [agent.money for agent in simulation.agents])), 1, (255, 255, 255))
         window.blit(money_text, (100, 5))

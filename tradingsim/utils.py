@@ -1,5 +1,5 @@
 from __future__ import division
-import configuration
+import tradingsim.configuration as configuration
 
 
 def is_point_on_line_segment(x1, y1, x2, y2, px, py):

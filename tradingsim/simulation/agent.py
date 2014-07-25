@@ -1,3 +1,4 @@
+import functools
 import logging
 import math
 import random
@@ -80,17 +81,17 @@ class Agent:
             The amount of space remaining taking into account the goods
             already purchased.
         '''
-        return self.max_goods - reduce(lambda x, y: x + y.amount,
-                                       [good_amount for good, good_amount in self.goods.iteritems()],
-                                       0)
+        return self.max_goods - functools.reduce(lambda x, y: x + y.amount,
+                                                 [good_amount for good, good_amount in self.goods.items()],
+                                                 0)
 
     def total_goods(self):
         '''
             The total number of all goods in stock
         '''
-        return reduce(lambda x, y: x + y.amount,
-                      [good_amount for good, good_amount in self.goods.iteritems()],
-                      0)
+        return functools.reduce(lambda x, y: x + y.amount,
+                                [good_amount for good, good_amount in self.goods.items()],
+                                0)
 
     def buy(self, destination, good, amount):
         '''
@@ -167,20 +168,20 @@ class AgentAI:
 
     def arrived(self, destination):
         def _maybe_sell(destination):
-            agent_goods = {good: value for good, value in self.agent.goods.iteritems() if value.amount > 0}
+            agent_goods = {good: value for good, value in self.agent.goods.items() if value.amount > 0}
 
             if len(agent_goods) == 0:
-                print "Agent {0} has nothing to sell".format(self.agent.name)
+                print("Agent {0} has nothing to sell".format(self.agent.name))
                 return False
             else:
-                for good, good_amount in agent_goods.iteritems():
+                for good, good_amount in agent_goods.items():
                     for num_to_sell in range(good_amount.amount, 1, -1):
                         if good.sale_cost(destination.goods_quantity[good], num_to_sell) > good_amount.average_purchase_cost:
                             self.agent.sell(destination, good, num_to_sell)
                             break
 
         def _maybe_buy(destination):
-            for good in [good for good, amount in destination.goods_quantity.iteritems() if amount > 0]:
+            for good in [good for good, amount in destination.goods_quantity.items() if amount > 0]:
                 space_remaining = self.agent.space_remaining()
 
                 actual_num_to_buy = 0
@@ -264,7 +265,7 @@ class AgentAI:
         def _score_visited_location(location):
             goods_worth_buying = 0
             goods_not_worth_buying = 0
-            for good, cost in self.last_known_costs[location].iteritems():
+            for good, cost in self.last_known_costs[location].items():
                 if good in self.last_sale_value:
                     if self.last_sale_value[good] - cost > self.good_profit_per_item:
                         goods_worth_buying += 1
