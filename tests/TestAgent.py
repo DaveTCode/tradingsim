@@ -58,8 +58,8 @@ class AgentTests(unittest.TestCase):
 
     def test_space_remaining_function(self):
         agent = Agent("a", 1, 1)
-        good1 = Goods("1", 1, 1, 1)
-        good2 = Goods("2", 1, 1, 1)
+        good1 = Goods("1", 1, 1, 1, 1)
+        good2 = Goods("2", 1, 1, 1, 1)
         agent.goods[good1] = AgentGood(good1, 5, 1)
         agent.goods[good2] = AgentGood(good2, 2, 1)
         self.assertEqual(agent.space_remaining(), configuration.AGENT_MAX_GOODS - 5 - 2)

@@ -12,19 +12,23 @@ def create_simulation():
         sim.goods.append(Goods("A",
                                random.randint(10, 200),
                                random.randint(0, 10),
-                               random.randint(1, 10)))
+                               random.randint(5, 10),
+                               random.randint(1, 4)))
         sim.goods.append(Goods("B",
                                random.randint(10, 200),
                                random.randint(0, 10),
-                               random.randint(1, 10)))
+                               random.randint(5, 10),
+                               random.randint(1, 4)))
         sim.goods.append(Goods("C",
                                random.randint(10, 200),
                                random.randint(0, 10),
-                               random.randint(1, 10)))
+                               random.randint(5, 10),
+                               random.randint(1, 4)))
         sim.goods.append(Goods("D",
                                random.randint(10, 200),
                                random.randint(0, 10),
-                               random.randint(1, 10)))
+                               random.randint(5, 10),
+                               random.randint(1, 4)))
 
     def create_locations(sim):
         for ii in range(0, random.randint(10, 20)):
