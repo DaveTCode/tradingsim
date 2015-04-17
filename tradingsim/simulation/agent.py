@@ -171,7 +171,7 @@ class AgentAI:
             else:
                 for good, good_amount in agent_goods.items():
                     for num_to_sell in range(good_amount.amount, 1, -1):
-                        if good.sale_cost(dest.goods_quantity[good], num_to_sell) > good_amount.average_purchase_cost:
+                        if good.sale_cost(dest.goods_quantity[good], num_to_sell) > good_amount.average_purchase_cost * num_to_sell:
                             self.agent.sell(dest, good, num_to_sell)
                             break
 
