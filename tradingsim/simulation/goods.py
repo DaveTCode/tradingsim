@@ -1,6 +1,3 @@
-import math
-
-
 class Goods:
     """
     This represents the static data that constitutes a single good. It
@@ -76,7 +73,7 @@ class Goods:
         for ii in range(0, sale_amount):
             total_cost += self.sale_cost_of_one(current_amount + ii)
 
-        return total_cost
+        return int(total_cost)
 
     def __str__(self):
         return self.name
