@@ -18,21 +18,20 @@ class Agent:
         self.current_location = None
         self.destination = None
         self.last_location = None
+        self.logger = logging.getLogger("root")
 
         self.ai = AgentAI(self)  # Owned by the agent but also holds a reference. 1-1 relationship
 
-        self.history = []
-
     def step(self, dt, simulation):
         if self.is_dead():
-            logging.debug("Agent {0} is dead".format(self.name))
+            self.logger.debug("Agent {0} is dead".format(self.name))
 
         vel = self.velocity()
 
         next_x = self.x + dt * vel[0]
         next_y = self.y + dt * vel[1]
 
-        if not self.destination is None and utils.is_point_on_line_segment(self.x, self.y, next_x, next_y, self.destination.x, self.destination.y):
+        if self.destination is not None and utils.is_point_on_line_segment(self.x, self.y, next_x, next_y, self.destination.x, self.destination.y):
             self.arrive()
 
         self.x = next_x
@@ -42,30 +41,32 @@ class Agent:
 
     def velocity(self):
         if self.destination is None or (utils.are_points_nearly_equal(self.destination.x, self.x, self.destination.y, self.y)):
-            return (0, 0)
+            return 0, 0
         else:
             dx = self.destination.x - self.x
             dy = self.destination.y - self.y
             theta = math.atan2(dx, dy)
 
-            return (self.speed * math.sin(theta), self.speed * math.cos(theta))
+            return self.speed * math.sin(theta), self.speed * math.cos(theta)
 
     def distance_to_location(self, location):
         return math.sqrt((self.x - location.x) ** 2 + (self.y - location.y) ** 2)
 
     def is_dead(self):
-        '''
+        """
             An agent is defined as dead if they have no money and no goods to sell.
-        '''
+        """
         return self.money == 0 and len([good for good in self.goods.keys() if self.goods[good] == 0])
 
     def arrive(self):
-        '''
+        """
             Called when the agent arrives at their destination.
-        '''
-        message = "Agent {0} arrives at {1}".format(self.name, self.destination)
-        logging.debug(message)
-        self.history.append(message)
+        """
+        message = "Agent {0} arrives at {1} which has:  ".format(self.name, self.destination)
+        for good, amount in self.destination.goods_quantity.items():
+            message += "{0} of {1}, ".format(amount, good)
+
+        self.logger.debug(message)
 
         self.x = self.destination.x
         self.y = self.destination.y
@@ -76,44 +77,42 @@ class Agent:
         self.destination = None
 
     def space_remaining(self):
-        '''
+        """
             The amount of space remaining taking into account the goods
             already purchased.
-        '''
-        return self.max_goods - reduce(lambda x, y: x + y.amount,
-                                       [good_amount for good, good_amount in self.goods.iteritems()],
-                                       0)
+        """
+        return self.max_goods - self.total_goods()
 
     def total_goods(self):
-        '''
+        """
             The total number of all goods in stock
-        '''
-        return reduce(lambda x, y: x + y.amount,
-                      [good_amount for good, good_amount in self.goods.iteritems()],
-                      0)
+        """
+        total = 0
+        for good_amount in self.goods.values():
+            total += good_amount.amount
+
+        return total
 
     def buy(self, destination, good, amount):
-        '''
+        """
             Attempt to purchase the requested amount of goods.
-        '''
+        """
         cost = good.purchase_cost(destination.goods_quantity[good], amount)
-        if not good in self.goods.keys():
+        if good not in self.goods.keys():
             self.goods[good] = AgentGood(good, amount, cost / amount)
         else:
             self.goods[good].amount += amount
-            self.goods[good].average_purchase_cost = cost / amount
+            self.goods[good].average_purchase_cost = cost / amount  # TODO - This currently resets the average_purchase_cost to the new one which isn't quite right. Should be updating it instead if there are still that were bought at the old cost
 
         self.money -= cost
         destination.goods_quantity[good] -= amount
 
-        message = "Agent {0} purchases {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination)
-        logging.debug(message)
-        self.history.append(message)
+        self.logger.debug("Agent {0} purchases {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination))
 
     def sell(self, destination, good, amount):
-        '''
+        """
             Attempt to sell the requested number of goods.
-        '''
+        """
         cost = good.sale_cost(destination.goods_quantity[good], amount)
 
         self.goods[good].amount -= amount
@@ -121,9 +120,7 @@ class Agent:
         self.money += cost
         self.destination.goods_quantity[good] += amount
 
-        message = "Agent {0} sells {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination)
-        logging.debug(message)
-        self.history.append(message)
+        self.logger.debug("Agent {0} sells {1} of {2} for {3} at {4}".format(self.name, amount, good, cost, destination))
 
     def set_destination(self, destination):
         self.destination = destination
@@ -131,8 +128,7 @@ class Agent:
         self.current_location = None
 
         message = "Agent {0} sets destination to {1}".format(self.name, destination)
-        logging.debug(message)
-        self.history.append(message)
+        self.logger.debug(message)
 
     def __str__(self):
         return "{0} ({1},{2})".format(self.name, self.x, self.y)
@@ -156,7 +152,7 @@ class AgentAI:
 
     def act(self, simulation):
         if self.agent.destination is None:
-            logging.debug("Agent {0} has no current destination".format(self.agent.name))
+            self.agent.logger.debug("Agent {0} has no current destination".format(self.agent.name))
             if self.agent.last_location is None:
                 self.agent.set_destination(self._choose_purchase_destination(simulation))
             else:
@@ -166,31 +162,31 @@ class AgentAI:
                     self.agent.set_destination(self._choose_sale_destination(simulation))
 
     def arrived(self, destination):
-        def _maybe_sell(destination):
-            agent_goods = {good: value for good, value in self.agent.goods.iteritems() if value.amount > 0}
+        def _maybe_sell(dest):
+            agent_goods = {good: value for good, value in self.agent.goods.items() if value.amount > 0}
 
             if len(agent_goods) == 0:
-                print "Agent {0} has nothing to sell".format(self.agent.name)
+                self.agent.logger.debug("Agent {0} has nothing to sell".format(self.agent.name))
                 return False
             else:
-                for good, good_amount in agent_goods.iteritems():
+                for good, good_amount in agent_goods.items():
                     for num_to_sell in range(good_amount.amount, 1, -1):
-                        if good.sale_cost(destination.goods_quantity[good], num_to_sell) > good_amount.average_purchase_cost:
-                            self.agent.sell(destination, good, num_to_sell)
+                        if good.sale_cost(dest.goods_quantity[good], num_to_sell) > good_amount.average_purchase_cost:
+                            self.agent.sell(dest, good, num_to_sell)
                             break
 
-        def _maybe_buy(destination):
-            for good in [good for good, amount in destination.goods_quantity.iteritems() if amount > 0]:
+        def _maybe_buy(dest):
+            for good in [good for good, amount in dest.goods_quantity.items() if amount > 0]:
                 space_remaining = self.agent.space_remaining()
 
                 actual_num_to_buy = 0
                 for possible_num_to_buy in range(1, space_remaining):
-                    cost_to_buy = good.purchase_cost(destination.goods_quantity[good], possible_num_to_buy)
+                    cost_to_buy = good.purchase_cost(dest.goods_quantity[good], possible_num_to_buy)
                     cost_per_item = int(math.ceil(cost_to_buy / possible_num_to_buy))
                     if cost_to_buy > self.agent.money:
                         # Stop buying if we run out of money
                         break
-                    elif possible_num_to_buy > destination.goods_quantity[good]:
+                    elif possible_num_to_buy > dest.goods_quantity[good]:
                         # Destination doesn't have any more so stop buying.
                         break
                     elif good in self.last_sale_value.keys():
@@ -205,17 +201,17 @@ class AgentAI:
                         actual_num_to_buy = possible_num_to_buy
 
                 if actual_num_to_buy > 0:
-                    self.agent.buy(destination, good, actual_num_to_buy)
+                    self.agent.buy(dest, good, actual_num_to_buy)
 
         _maybe_sell(destination)
         _maybe_buy(destination)
 
     def _choose_sale_destination(self, simulation):
-        def _score_unvisited_location(location):
-            return (self.agent.distance_to_location(location) / simulation.max_distance)
+        def _score_unvisited_location(loc):
+            return self.agent.distance_to_location(loc) / simulation.max_distance
 
-        def _score_visited_location(location):
-            '''
+        def _score_visited_location(loc):
+            """
                 A location is good to visit for sale if there is at least one
                 good worth selling there.
 
@@ -223,7 +219,7 @@ class AgentAI:
                 goods NOT worth selling there then it is bad to visit.
 
                 Currently no weighting given to potential profit.
-            '''
+            """
             goods_worth_selling = 0
             goods_not_worth_selling = 0
             for good in self.last_known_costs.keys():
@@ -234,9 +230,9 @@ class AgentAI:
                         goods_not_worth_selling += 1
 
             if goods_worth_selling > 0:
-                return _score_unvisited_location(location) + goods_worth_selling
+                return _score_unvisited_location(loc) + goods_worth_selling
             else:
-                return _score_unvisited_location(location) - goods_not_worth_selling
+                return _score_unvisited_location(loc) - goods_not_worth_selling
 
         weighted_locations = {location: 0 for location in simulation.locations if location != self.agent.current_location}
 
@@ -246,25 +242,25 @@ class AgentAI:
             else:
                 weighted_locations[location] = _score_unvisited_location(location)
 
-        logging.debug("Choosing from {0} sale destinations".format(len(weighted_locations.keys())))
+        self.agent.logger.debug("Choosing from {0} sale destinations".format(len(weighted_locations)))
         return self._choose_from_weighted_locations(weighted_locations)
 
     def _choose_purchase_destination(self, simulation):
-        '''
+        """
             A purchase destination is good if there is a good there with a
             known cost that is low enough that we can make a profit on the
             most recent sale value.
 
             A purchase destination is bad if there are no goods worth buying
             and one or more goods not worth buying.
-        '''
-        def _score_unvisited_location(location):
-            return (self.agent.distance_to_location(location) / simulation.max_distance)
+        """
+        def _score_unvisited_location(loc):
+            return self.agent.distance_to_location(loc) / simulation.max_distance
 
-        def _score_visited_location(location):
+        def _score_visited_location(loc):
             goods_worth_buying = 0
             goods_not_worth_buying = 0
-            for good, cost in self.last_known_costs[location].iteritems():
+            for good, cost in self.last_known_costs[loc].items():
                 if good in self.last_sale_value:
                     if self.last_sale_value[good] - cost > self.good_profit_per_item:
                         goods_worth_buying += 1
@@ -272,9 +268,9 @@ class AgentAI:
                         goods_not_worth_buying += 1
 
             if goods_worth_buying > 0:
-                return _score_unvisited_location(location) + goods_worth_buying
+                return _score_unvisited_location(loc) + goods_worth_buying
             else:
-                return _score_unvisited_location(location) + goods_not_worth_buying
+                return _score_unvisited_location(loc) + goods_not_worth_buying
 
         weighted_locations = {location: 0 for location in simulation.locations if location != self.agent.current_location}
 
@@ -286,7 +282,8 @@ class AgentAI:
 
         return self._choose_from_weighted_locations(weighted_locations)
 
-    def _choose_from_weighted_locations(self, locations):
+    @staticmethod
+    def _choose_from_weighted_locations(locations):
         sorted_locations = sorted(locations.items(), key=lambda x: x[1])
         index = 0
         while random.randint(0, 10) > 9 and index < len(sorted_locations):

@@ -7,9 +7,9 @@ from tradingsim.renderers.dotrenderer import DotRenderer
 class DotRendererTests(unittest.TestCase):
 
     def setUp(self):
-        '''
+        """
             Renderer uses font objects so need to set this up.
-        '''
+        """
         pygame.init()
         pygame.font.init()
 
@@ -64,8 +64,8 @@ class DotRendererTests(unittest.TestCase):
         renderer = DotRenderer()
         renderer.zoom_camera(1)
         renderer.move_camera(19, 1)
-        self.assertEqual(renderer._window_to_agent_coords(0, 0), (9, 0))
-        self.assertEqual(renderer._window_to_agent_coords(10, 10), (14, 5))
+        self.assertEqual(renderer._window_to_agent_coords(0, 0), (9.5, 0.5))
+        self.assertEqual(renderer._window_to_agent_coords(10, 10), (14.5, 5.5))
 
 if __name__ == '__main__':
     unittest.main()

@@ -11,7 +11,7 @@ class Location:
 
     def step(self, dt):
         for good in self.goods_creation_rate.keys():
-            if not good in self.goods_quantity:
+            if good not in self.goods_quantity:
                 self.goods_quantity[good] = 0
                 self.goods_quantity_fractional[good] = 0
 

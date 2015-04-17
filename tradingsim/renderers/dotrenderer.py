@@ -8,7 +8,7 @@ class DotRenderer:
         self.top_left_x = 0
         self.top_left_y = 0
         self.scale = 1
-        self.keys = {v: (k, False) for (k, v) in configuration.RENDERER_KEY_CONFIG.iteritems()}
+        self.keys = {v: (k, False) for (k, v) in configuration.RENDERER_KEY_CONFIG.items()}
         self.location_highlighted = None
         self.details_font = pygame.font.Font(None, 12)
         self.overlay_font = pygame.font.Font(None, 24)
@@ -47,7 +47,7 @@ class DotRenderer:
             self.keys[event.key] = (self.keys[event.key][0], False)
 
     def _update_viewport(self):
-        keys_down = [v[0] for (k, v) in self.keys.iteritems() if v[1]]
+        keys_down = [v[0] for v in self.keys.values() if v[1]]
         dx = 0
         dy = 0
         dz = 0
@@ -74,26 +74,23 @@ class DotRenderer:
         self.zoom_camera(dz)
 
     def _agent_to_window_coords(self, x, y):
-        return ((x * self.scale) - self.top_left_x, (y * self.scale) - self.top_left_y)
+        return (x * self.scale) - self.top_left_x, (y * self.scale) - self.top_left_y
 
     def _window_to_agent_coords(self, x, y):
-        return ((x + self.top_left_x) / self.scale, (y + self.top_left_y) / self.scale)
+        return (x + self.top_left_x) / self.scale, (y + self.top_left_y) / self.scale
 
     def _render_agent(self, window, agent, render_agent_text):
         (x, y) = self._agent_to_window_coords(agent.x, agent.y)
         color = configuration.AGENT_DEAD_COLOR if agent.is_dead() else configuration.AGENT_COLOR
 
-        text_rendered = self.details_font.render(agent.name + "(" + str(agent.money) + ")", 1, configuration.AGENT_COLOR)
+        text_rendered = self.details_font.render("{0} ({1})".format(agent.name, agent.money), 1, configuration.AGENT_COLOR)
         window.blit(text_rendered, (int(x) + 5, int(y) + 5))
-        pygame.draw.circle(window,
-                           configuration.AGENT_COLOR,
-                           (int(x), int(y)),
-                           configuration.AGENT_RADIUS)
+        pygame.draw.circle(window, color, (int(x), int(y)), configuration.AGENT_RADIUS)
 
         if render_agent_text:
             text = "Agent {0}: ".format(agent.name)
-            for good, agent_good in agent.goods.iteritems():
-                text += str(good) + "=" + str(agent_good.amount) + ", "
+            for good, agent_good in agent.goods.items():
+                text += "{0}={1}, ".format(good, agent_good.amount)
 
             text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
             window.blit(text_rendered, (x, y))
@@ -109,9 +106,9 @@ class DotRenderer:
                           configuration.LOCATION_WIDTH))
 
         if render_text:
-            text = location.name + " "
-            for good, amount in location.goods_quantity.iteritems():
-                text += str(good) + "=" + str(amount) + ", "
+            text = "{0} ".format(location.name)
+            for good, amount in location.goods_quantity.items():
+                text += "{0}={1}, ".format(good, amount)
             text_rendered = self.details_font.render(text[:-2], 1, (255, 255, 255))
             window.blit(text_rendered, (x, y))
 
@@ -119,5 +116,5 @@ class DotRenderer:
         time_text = self.overlay_font.render(simulation.time_str(), 1, (255, 255, 255))
         window.blit(time_text, (5, 5))
 
-        money_text = self.overlay_font.render("Money: " + str(reduce(lambda x,y: x+y, [agent.money for agent in simulation.agents])), 1, (255, 255, 255))
+        money_text = self.overlay_font.render("Money: {0}".format(simulation.total_money()), 1, (255, 255, 255))
         window.blit(money_text, (100, 5))

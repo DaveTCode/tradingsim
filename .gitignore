@@ -35,6 +35,7 @@ cover
 .mr.developer.cfg
 .project
 .pydevproject
-trading-sim.sublime-workspace
+.idea
+venv
 
-log.txt
+*.log
