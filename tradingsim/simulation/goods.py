@@ -72,14 +72,13 @@ class Goods:
         Returns:
             Value received for selling one unit (rounded to nearest integer)
         """
-        current_amount = current_amount
         if current_amount >= self.min_cost_amount:
             return self.min_cost
         elif current_amount <= self.max_cost_amount:
             return self.max_cost
         else:
             # Linear interpolation - same formula as purchase with rounding
-            slope = (self.max_cost - self.min_cost) / (self.max_cost_amount - self.min_cost_amount)
+            slope = float((self.max_cost - self.min_cost)) / float((self.max_cost_amount - self.min_cost_amount))
             return round(self.max_cost + slope * (current_amount - self.max_cost_amount))
 
     def purchase_cost(self, current_amount: int, purchase_amount: int) -> int:
