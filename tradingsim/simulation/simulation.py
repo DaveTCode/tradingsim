@@ -4,7 +4,7 @@ import pygame
 
 class Simulation:
 
-    def __init__(self, width, height, ms_to_minutes):
+    def __init__(self, width: int, height: int, ms_to_minutes: float):
         """
             width - The width of the simulation in arbitrary internal units.
             height - The height of the simulation in arbitrary internal units.
@@ -22,7 +22,7 @@ class Simulation:
         self.locations = []
         self.goods = []
 
-    def step(self, dt_ms):
+    def step(self, dt_ms: float):
         """
             Called to step the simulation on by the given number of
             milliseconds.
@@ -32,7 +32,7 @@ class Simulation:
         """
         step_time_minutes = dt_ms * self.base_ms_to_minutes
 
-        for i in range(0, self.zoom):
+        for _ in range(0, self.zoom):
             self.minutes_since_start += step_time_minutes
 
             for agent in self.agents:
@@ -41,7 +41,7 @@ class Simulation:
             for location in self.locations:
                 location.step(step_time_minutes)
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
                 self.zoom = 1
@@ -54,7 +54,7 @@ class Simulation:
             elif event.key == pygame.K_5:
                 self.zoom = 100
 
-    def time_str(self):
+    def time_str(self) -> str:
         """
             Provides a string representation of the time since the simulation
             started.
@@ -64,7 +64,7 @@ class Simulation:
 
         return "{0:d}:{1:d}    (x{2:d})".format(int(hours), int(minutes), int(self.zoom))
 
-    def total_money(self):
+    def total_money(self) -> float:
         """
             Provides access to information on the total money across all agents
             in the simulation.

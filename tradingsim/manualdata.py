@@ -7,7 +7,7 @@ from tradingsim.simulation.location import Location
 from tradingsim.simulation.simulation import Simulation
 
 
-def create_simulation():
+def create_simulation() -> Simulation:
     def create_goods(sim):
         sim.goods.append(Goods("A",
                                random.randint(10, 200),

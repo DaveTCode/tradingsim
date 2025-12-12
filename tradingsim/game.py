@@ -1,11 +1,15 @@
 import pygame
 import sys
 import tradingsim.configuration as configuration
+from tradingsim.renderers.dotrenderer import DotRenderer
+from tradingsim.simulation.simulation import Simulation
 
 
 class Game:
 
-    def __init__(self, width, height, simulation, renderer):
+    def __init__(
+        self, width: int, height: int, simulation: Simulation, renderer: DotRenderer
+    ):
         self.width = width
         self.height = height
         self.simulation = simulation
@@ -31,7 +35,7 @@ class Game:
 
             self.main_loop_clock.tick(configuration.FPS)
 
-    def _handle_event(self, event):
+    def _handle_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             self.paused = not self.paused
 
