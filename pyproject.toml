@@ -1,0 +1,47 @@
+[project]
+name = "tradingsim"
+version = "0.1.0"
+description = "A trading simulation game built with pygame"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "David Tyler", email = "davet.code@gmail.com" }]
+dependencies = ["pygame>=2.6.1"]
+
+[project.optional-dependencies]
+dev = ["pytest>=9.0.2", "pytest-cov>=7.0.0", "ruff>=0.14.9"]
+
+[project.scripts]
+tradingsim = "run:main"
+
+[build-system]
+requires = ["setuptools>=75.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["tradingsim", "tradingsim.simulation", "tradingsim.renderers"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
+]
+ignore = [
+  "E501", # line too long (handled by formatter)
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["Test*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=tradingsim --cov-report=term-missing"
